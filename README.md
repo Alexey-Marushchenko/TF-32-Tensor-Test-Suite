@@ -1,5 +1,6 @@
 # TF-32-Tensor-Test-Suite
-Tensorflow and Pytorch test for tensor cores performance
+Tensorflow and Pytorch test for tensor cores performance. Tested with 2.8.0 and 1.11.0 respectivly.
+
 There are three values to be setup before test run
 
 # Iterations number
