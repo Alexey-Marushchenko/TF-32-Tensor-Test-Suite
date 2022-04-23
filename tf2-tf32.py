@@ -37,7 +37,7 @@ iters = 100
 n = 8192
 
 # Tensor cores use selector 
-use_tensor = False
+use_tensor_cores = True
 
 # Debug to check where ops run
 #tf.debugging.set_log_device_placement(True)
@@ -51,7 +51,7 @@ def mul(matrix1, matrix2):
 # Avoid any optimizations
 tf.config.optimizer.set_experimental_options({'disable_model_pruning': True, 'disable_meta_optimizer': True})
 
-tf.config.experimental.enable_tensor_float_32_execution(use_tensor)
+tf.config.experimental.enable_tensor_float_32_execution(use_tensor_cores)
 print("\nIs TF32 enabled: " + str(tf.config.experimental.tensor_float_32_execution_enabled()))
 
 device_spec = tf.DeviceSpec.from_string("/GPU:0")
