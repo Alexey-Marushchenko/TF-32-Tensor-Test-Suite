@@ -12,4 +12,5 @@ n = 8192
 use_tensor_cores = True
 
 It is recommended not to change the values of **iters** and **n** without specific need.
+
 **use_tensor_cores** allows to switch between TF-32 math when set to **True** and FP-32 math when set to **False**
