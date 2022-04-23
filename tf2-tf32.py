@@ -18,7 +18,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Version 20220423_1012
+# Version 20220423_1257
 # Target Tensorflow version 2.8.0
 # Target CUDA version 11.6.2
 # Target CUDNN version 8.4.0
@@ -38,6 +38,9 @@ n = 8192
 
 # Tensor cores use selector 
 use_tensor_cores = True
+
+# Tensorflow spams a lot to stderr, let's fix it
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 # Debug to check where ops run
 #tf.debugging.set_log_device_placement(True)
