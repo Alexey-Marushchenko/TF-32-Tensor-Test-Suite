@@ -23,3 +23,6 @@ Default value - True
 It is recommended not to change the values of **iters** and **n** without specific need.
 
 **use_tensor_cores** allows to switch between TF-32 math when set to **True** and FP-32 math when set to **False**
+
+# Performance boosts for TF-32 math
+For single NVIDIA GeForce RTX 3060 average measured performance acceleration was 36,5% with TF-32 math. Tests iters were 1000, 10000, 50000 and 100000.
