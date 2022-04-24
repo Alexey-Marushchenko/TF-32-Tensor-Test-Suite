@@ -25,4 +25,6 @@ It is recommended not to change the values of **iters** and **n** without specif
 **use_tensor_cores** allows to switch between TF-32 math when set to **True** and FP-32 math when set to **False**
 
 # Performance boosts for TF-32 math
-For single NVIDIA GeForce RTX 3060 average measured performance acceleration was **36,5%** with TF-32 math for Tensorflow and **78%** for PyTorch. Tests iters were 100, 1'000, 10'000, 50'000 and 100'000 with n = 8192.
+For single NVIDIA GeForce RTX 3060 average measured performance acceleration medians were **37,02%** with TF-32 math for Tensorflow and **81,08%** for PyTorch. Tests iters were 100, 1'000, 10'000, 50'000 and 100'000 with n = 8192.
+
+For set of 13 runs with exlude of 1st on with iter = 100 acceleration medians were **36,57%** with TF-32 math for Tensorflow and **81,07%** for PyTorch.
