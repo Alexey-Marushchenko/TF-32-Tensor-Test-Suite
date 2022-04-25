@@ -1,5 +1,5 @@
 # TF-32-Tensor-Test-Suite
-Tensorflow and Pytorch test for tensor cores performance. Tested with 2.8.0 and 1.11.0 respectively.
+TensorFlow2 and PyTorch test for tensor cores performance. Tested with 2.8.0 and 1.11.0 respectively.
 
 Tests were written after Cuda 11.6.2 and Cudnn 8.4.0.27 with Debian-like OS.
 
