@@ -19,10 +19,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Version 20220425_1531
-# Target torch version 1.11.0
-# Target CUDA version 11.6.2
-# Target CUDNN version 8.4.0
+# Version 20221103_1017
+# Target torch version 1.13.0
+# Target CUDA version 11.8.0
+# Target CUDNN version 8.6.0
 
 import argparse
 import functools
@@ -30,6 +30,7 @@ import os
 import sys
 import time
 import torch
+import rich
 
 dtype = torch.float32
 
@@ -65,27 +66,49 @@ if __name__ == '__main__':
     torch.backends.cuda.matmul.allow_tf32 = use_tensor_cores
     torch.backends.cudnn.allow_tf32 = use_tensor_cores
 
+    style_color = "bold red"
+    if use_tensor_cores == True:
+        style_color = "bold green"
+
+    from rich.console import Console
+    console = Console()
+
     if be_verbose == True:
-        print("\nIs TF32 matmul enabled: " + str(torch.backends.cuda.matmul.allow_tf32))
-        print("Is TF32 cudnn enabled: " + str(torch.backends.cudnn.allow_tf32))
+        console.print("Is TF32 matmul enabled:", str(torch.backends.cuda.matmul.allow_tf32), style=style_color)
+        console.print("Is TF32 cudnn enabled:", str(torch.backends.cudnn.allow_tf32), style=style_color)
 
     # Warmup with at least 1200 iterations
     if be_verbose == True:
-        print('\nKeep calm while warming up the card...\n')
+        tasks = [f"task {n}" for n in range(1200)]
+        with console.status("[blue on white]Keep calm while warming up the card...", spinner="circleQuarters") as status:
+            while tasks:
+                task = tasks.pop(0)
+                ret_matrix = in_matrix @ ret_matrix
+    else:
+        for i in range(1200):
+            ret_matrix = in_matrix @ ret_matrix
 
-    for i in range(1200):
-        ret_matrix = in_matrix @ ret_matrix
+    if be_verbose == True:
+        console.print("Test start time:", str(time.ctime()))
 
     start_time = time.time()
-    iter_time = start_time
- 
-    for i in range(1, iters+1):
-        ret_matrix = in_matrix @ ret_matrix
+    
+    from rich.progress import *
+    progress = Progress(
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        TimeRemainingColumn(),
+        transient=True
+    )
 
-        if be_verbose == True and (i/iters*100).is_integer():
-            tran_time = time.time()
-            print(str(time.ctime()) + ' | Iter num %d of %d | %.2f ' % (i, iters, i/iters*100) + r"%" + ' done | Est. time remain is %.2f sec.' % ((tran_time - iter_time)*(1-i/iters)*100))
-            iter_time=tran_time
+    with progress:
+        task1 = progress.add_task("[blue]Working...", total=iters)
+        while not progress.finished:
+            ret_matrix = in_matrix @ ret_matrix
+            progress.update(task1, advance=1)
 
     end_time = time.time()
 
@@ -94,8 +117,6 @@ if __name__ == '__main__':
     rate = iters*ops/elapsed_time/10**9
 
     if be_verbose == True:
-        print(str(time.ctime()))
-        print("\nWas TF32 matmul enabled: " + str(torch.backends.cuda.matmul.allow_tf32))
-        print("Was TF32 cudnn enabled: " + str(torch.backends.cudnn.allow_tf32))
+        console.print("Test end time:", str(time.ctime()))
 
-    print('\n%d x %d matmul took: %.2f sec per iter at rate %.2f G ops/sec. Total time is: %.2f sec' % (n, n, elapsed_time/iters, rate, elapsed_time))
+    console.print("%d x %d matmul took: %.4f sec per iter at rate %.2f G ops/sec. Total time is: %.4f sec" % (n, n, elapsed_time/iters, rate, elapsed_time))

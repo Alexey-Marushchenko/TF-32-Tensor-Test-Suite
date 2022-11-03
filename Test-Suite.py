@@ -19,7 +19,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
-# Version 20220425_1723
+# Version 20221103_1016
 # Target PyTorch, TensorFlow2, CUDA and CUDNN are at test files
 
 import argparse
@@ -27,6 +27,7 @@ import functools
 import subprocess
 import sys
 import time
+import rich
 
 print = functools.partial(print, flush=True)
 
@@ -49,7 +50,10 @@ if __name__ == '__main__':
     parser = createParser()
     namespace = parser.parse_args(sys.argv[1:])
 
-    print(namespace)
+    from rich.console import Console
+    console = Console()
+
+    console.print(namespace)
 
     runs = namespace.runs
     iters = namespace.iters
@@ -80,16 +84,16 @@ if __name__ == '__main__':
     tests_len = len(tests)
 
     if tests_len == 0:
-        print('You need to select at least one test')
+        console.print("You need to select at least one test", style="bold red")
         sys.exit(1)
 
     for test_name, params in tests.items():
         tests_len -= 1
         
         if be_verbose == True:
-            print(str(time.ctime()))
-            print('Start of ' + params[0])
-            print('-------------------------------------------------------')
+            console.print(str(time.ctime()))
+            console.print("Start of", params[0])
+            console.print("-------------------------------------------------------")
 
             params.append('-v')
 
@@ -100,18 +104,34 @@ if __name__ == '__main__':
         for i in range(len(params)-1):
             cmd += ' ' + params[i+1]
 
+        if be_verbose == False:
+            console.print(params[0])
+
         for i in range(runs):
             subprocess.run(cmd.split())
 
         if be_verbose == True:
-            print('\nEnd of ' + params[0])
-            print(str(time.ctime()))
+            console.print("End of", params[0])
+            console.print(str(time.ctime()))
     
         if tests_len > 0: 
             if be_verbose == True:
-                print('60 seconds card cooldown')
+                console.print("[blue]60 seconds card cooldown")
 
-            time.sleep(60)
+            from rich.progress import *
+            progress = Progress(
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                TimeRemainingColumn(),
+                transient=True
+            )
+
+            with progress:
+                task1 = progress.add_task("[blue on white]Waiting...", total=60)
+                while not progress.finished:
+                    time.sleep(1)
+                    progress.update(task1, advance=1)
+
     
         if be_verbose == True:
-            print('-------------------------------------------------------\n')
+            console.print("-------------------------------------------------------")
